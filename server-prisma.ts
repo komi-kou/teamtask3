@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import path from 'path';
 
 // 環境変数の読み込み
 dotenv.config({ path: '.env.local' });
@@ -58,21 +59,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// ルートパス（フロントエンド用）
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Team Management API Server',
-    version: '1.0.0',
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth/*',
-      tasks: '/api/tasks',
-      projects: '/api/projects',
-      leads: '/api/leads',
-      team: '/api/team/*'
-    },
-    documentation: 'This is a backend API server. Please use the frontend application.'
-  });
+// 静的ファイルの配信（フロントエンド用）
+app.use(express.static(path.join(__dirname, 'build')));
+
+// APIルート以外のすべてのリクエストをフロントエンドに送信
+app.get('*', (req, res) => {
+  // APIルートの場合はスキップ
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // ユーザー登録
