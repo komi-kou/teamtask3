@@ -58,6 +58,23 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// ルートパス（フロントエンド用）
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Team Management API Server',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/*',
+      tasks: '/api/tasks',
+      projects: '/api/projects',
+      leads: '/api/leads',
+      team: '/api/team/*'
+    },
+    documentation: 'This is a backend API server. Please use the frontend application.'
+  });
+});
+
 // ユーザー登録
 app.post('/api/auth/register', async (req, res) => {
   try {
