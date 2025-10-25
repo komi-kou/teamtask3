@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String
+  name          String?
+  role          String        @default("user")
+  teamId        String?
+  teamName      String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  tasks         Task[]
+  projects      Project[]
+  documents     Document[]
+  salesEmails   SalesEmail[]
+  serviceMaterials ServiceMaterial[]
+  leads         Lead[]
+  customers     Customer[]
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  status       String    @default("pending") // pending, in-progress, completed, on-hold
+  priority     String    @default("medium") // low, medium, high
+  assignee     String?
+  dueDate      DateTime?
+  meetingLink  String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model Project {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  client          String
+  status          String    @default("planning") // planning, in-progress, review, completed, on-hold
+  isActive        Boolean   @default(true)
+  priority        String    @default("medium") // low, medium, high
+  startDate       DateTime?
+  endDate         DateTime?
+  budget          Float     @default(0)
+  actualRevenue   Float?
+  teamMembers     String[]  @default([])
+  progress        Int       @default(0)
+  deliverables    Json      @default("[]")
+  notes           String?
+  completedDate   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model Document {
+  id          String    @id @default(cuid())
+  title       String
+  type        String    @default("meeting") // meeting, memo, report, other
+  content     String?
+  attendees   String[]  @default([])
+  date        DateTime?
+  status      String    @default("draft") // draft, published, archived
+  tags        String[]  @default([])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model SalesEmail {
+  id            String    @id @default(cuid())
+  subject       String
+  content       String?
+  client        String
+  contactPerson String?
+  emailType     String    @default("inquiry") // inquiry, proposal, follow-up, contract, other
+  sentDate      DateTime?
+  receivedDate  DateTime?
+  status        String    @default("sent") // sent, received, replied, no-reply
+  attachments   String[]  @default([])
+  tags          String[]  @default([])
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model ServiceMaterial {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?
+  category        String    @default("proposal") // proposal, contract, manual, template, presentation, other
+  serviceCategory String    @default("other") // advertising, lp, design, video, development, consulting, other
+  fileType        String    @default("pdf") // pdf, doc, ppt, xls, image, video, other
+  fileName        String?
+  fileData        String? // Base64 encoded file data
+  version         String    @default("1.0")
+  isPublic        Boolean   @default(true)
+  downloadCount   Int       @default(0)
+  tags            String[]  @default([])
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model Lead {
+  id            String    @id @default(cuid())
+  company       String
+  contact       String
+  contactEmail  String?
+  contactPhone  String?
+  companyUrl    String?
+  status        String    @default("リード") // リード, 見積もり, 商談, 契約, 失注
+  value         Float?
+  probability   Int       @default(50)
+  nextAction    String?
+  lastContact   DateTime?
+  meetingDate   DateTime?
+  meetingLink   String?
+  services      Json      @default("[]")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Customer {
+  id              String    @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  company         String?
+  address         String?
+  status          String    @default("active")
+  notes           String?
+  contractDate    DateTime?
+  contractAmount  Float     @default(0)
+  contractDetails String?
+  industry        String?
+  employeeCount   Int?
+  annualRevenue   Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+}

@@ -1,0 +1,22 @@
+# Render deployment configuration
+
+# Build command
+build: npm run build
+
+# Start command
+start: npm start
+
+# Environment variables
+env:
+  - NODE_ENV=production
+  - REACT_APP_API_URL=https://your-api-domain.com
+
+# Build settings
+build_settings:
+  - NODE_VERSION=18
+
+# Health check
+health_check_path: /
+
+# Auto-deploy settings
+auto_deploy: true
